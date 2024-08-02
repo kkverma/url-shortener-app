@@ -1,58 +1,103 @@
+# URL Shortening Service
 
-# Welcome to your CDK Python project!
+This repository contains the code and configuration for a scalable URL Shortening Service using AWS services such as Lambda, API Gateway, DynamoDB, and ElastiCache. The service allows users to shorten URLs, redirect to the original URL, and optionally retrieve statistics for the shortened URLs.
 
-This is a blank project for CDK development with Python.
+## Architecture
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+- **API Gateway**: Handles HTTP requests and routes them to the appropriate Lambda functions.
+- **Lambda Functions**: Implement the core logic for shortening URLs, redirecting, and retrieving statistics.
+- **DynamoDB**: Stores the mapping of short URLs to long URLs.
+- **ElastiCache (Redis)**: Caches the URL mappings to improve performance.
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
+## Project Structure
 
-To manually create a virtualenv on MacOS and Linux:
+- `assets/lambda/`: Contains the Lambda function code.
+  - `shorten_lambda.py`: Handles URL shortening requests.
+  - `redirect_lambda.py`: Handles redirection requests.
+  - `stats_lambda.py`: Handles statistics retrieval requests.
+- `url_shortener_app/`: Contains the AWS CDK stack definitions.
+  - `url_shortener_app_stack.py`: Defines the infrastructure and resources using AWS CDK.
 
-```
-$ python3 -m venv .venv
-```
+## Prerequisites
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+- AWS Account
+- AWS CLI configured
+- AWS CDK installed (`npm install -g aws-cdk`)
+- Python 3.9+
+- Node.js 12+
 
-```
-$ source .venv/bin/activate
-```
+## Setup
 
-If you are a Windows platform, you would activate the virtualenv like this:
+1. **Clone the Repository**
 
-```
-% .venv\Scripts\activate.bat
-```
+   ```bash
+   git clone https://github.com/your-username/url-shortening-service.git
+   cd url-shortening-service
 
-Once the virtualenv is activated, you can install the required dependencies.
+2. **Install Dependencies**
 
-```
-$ pip install -r requirements.txt
-```
+    ```bash
+    pip install -r requirements.txt
 
-At this point you can now synthesize the CloudFormation template for this code.
+3. **Bootstrap the CDK (if not already done)**
 
-```
-$ cdk synth
-```
+    ```bash
+    cdk bootstrap
 
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
+4. **Deploy the Stack**
 
-## Useful commands
+    ```bash
+    cdk deploy
 
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
+## Lambda Functions
 
-Enjoy!
+### Shorten URL Function
+Handles POST requests to shorten a URL.
+
+* Endpoint: /shorten
+* Method: POST
+* Request Body:
+    ```json
+    {
+    "longUrl": "https://example.com/your-long-url"
+    }
+    ```
+* Response Body:
+    ```json
+    {
+    "shortUrl": "abc123"
+    }
+    ```
+
+### Redirect Function
+Handles GET requests to redirect to the original URL.
+
+* Endpoint: /{shortUrl}
+* Method: GET
+* Response: 301 Redirect to the original URL
+
+### Stats Function (Optional)
+Handles GET requests to retrieve statistics for a shortened URL.
+
+* Endpoint: /{shortUrl}/stats
+* Method: GET
+* Response Body:
+    ```json
+    {
+    "longUrl": "https://example.com/your-long-url",
+    "accessCount": 10,
+    "createdAt": "1609459200"
+    }
+    ```
+
+## Cleanup
+To delete the deployed stack:
+
+    ```bash
+    cdk destroy
+
+## Contributing
+Contributions are welcome! Please submit a pull request or open an issue to discuss your changes.
+
+## License
+This project is licensed under the MIT License - see the LICENSE file for details.
